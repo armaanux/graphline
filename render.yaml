@@ -1,0 +1,25 @@
+# Render Blueprint — one-file deploy config.
+# Render reads this automatically: it builds the Dockerfile and runs the app.
+# See the step-by-step in the README's Deploy section.
+services:
+  - type: web
+    name: graphline
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Optional keys — set the values in the Render dashboard (they stay secret,
+      # never in the repo). Everything works with none of them; these just make
+      # results richer. Leave them unset to run fully free/keyless.
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: SERPER_API_KEY
+        sync: false
+      - key: HUNTER_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

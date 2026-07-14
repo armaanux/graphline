@@ -1,0 +1,42 @@
+{
+  "name": "graphline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An evidence-first OSINT tool that crawls public sources to map the digital footprint behind an email, phone, username, name, or domain.",
+  "license": "MIT",
+  "keywords": [
+    "osint",
+    "investigation",
+    "digital-footprint",
+    "privacy",
+    "nextjs"
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.111.0",
+    "@react-three/fiber": "^9.6.1",
+    "@react-three/postprocessing": "^3.0.4",
+    "@xyflow/react": "^12.11.2",
+    "libphonenumber-js": "^1.13.8",
+    "lucide-react": "^1.24.0",
+    "nanoid": "^6.0.0",
+    "next": "16.2.10",
+    "postprocessing": "^6.39.2",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
