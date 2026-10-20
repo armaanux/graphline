@@ -8,10 +8,57 @@ import type {
 } from "./types";
 
 export function aiAvailable(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return Boolean(process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY);
 }
 
 const MODEL = process.env.GRAPHLINE_MODEL || "claude-sonnet-4-6";
+const OPENAI_MODEL = process.env.GRAPHLINE_OPENAI_MODEL || "gpt-5.4-mini";
+
+async function complete(system: string, user: string): Promise<string> {
+  if (process.env.ANTHROPIC_API_KEY) {
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 1200,
+      system,
+      messages: [{ role: "user", content: user }],
+    });
+    return res.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("");
+  }
+
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 90000);
+  try {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      signal: ctrl.signal,
+      headers: {
+        authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        reasoning_effort: "low",
+        max_completion_tokens: 4000,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+      }),
+    });
+    if (!res.ok) return "";
+    const data = (await res.json()) as {
+      choices?: { message?: { content?: string | null } }[];
+    };
+    return data.choices?.[0]?.message?.content ?? "";
+  } finally {
+    clearTimeout(t);
+  }
+}
 
 interface EnrichInput {
   identifier: Identifier;
@@ -30,8 +77,6 @@ export async function enrichReportWithAI(
   input: EnrichInput
 ): Promise<Partial<Report> | null> {
   if (!aiAvailable()) return null;
-
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   const facts = {
     searched: { type: input.identifier.type, value: input.identifier.raw },
@@ -85,16 +130,7 @@ Write a JSON object with exactly these keys:
 }`;
 
   try {
-    const res = await client.messages.create({
-      model: MODEL,
-      max_tokens: 1200,
-      system,
-      messages: [{ role: "user", content: user }],
-    });
-    const text = res.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
-      .map((b) => b.text)
-      .join("");
+    const text = await complete(system, user);
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return null;
     const parsed = JSON.parse(match[0]) as Partial<Report>;

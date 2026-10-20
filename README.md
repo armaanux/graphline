@@ -84,9 +84,10 @@ keyless automatically rather than going dark.
 
 ## The AI investigator
 
-Set `ANTHROPIC_API_KEY` and Claude writes the report&rsquo;s narrative — but
-only from the structured facts collected, never inventing anything. Without a
-key, a deterministic analyst produces the full report. The product never depends
+Set `ANTHROPIC_API_KEY` (or `OPENAI_API_KEY`) and the model writes the report&rsquo;s
+narrative — but only from the structured facts collected, never inventing
+anything. Claude is used when both keys are set. Without a key, a deterministic
+analyst produces the full report. The product never depends
 on the model being present.
 
 ## Getting started
@@ -153,6 +154,7 @@ Set them in `.env.local` (`cp .env.example .env.local`).
 | `BRAVE_API_KEY` | Alternative search provider, in place of Serper | Optional |
 | `HUNTER_API_KEY` | Professional emails on a domain | Optional |
 | `ANTHROPIC_API_KEY` | AI-written report narrative (deterministic writer without it) | Optional |
+| `OPENAI_API_KEY` | Same AI narrative via OpenAI, used when no Anthropic key is set | Optional |
 | `GRAPHLINE_DAILY_OWNER_CAP` | Investigations/day that may use your search key (unset = unlimited) | Deploy |
 | `GRAPHLINE_DAILY_PER_IP` | Investigations/day per visitor (unset = unlimited) | Deploy |
 | `GRAPHLINE_MAX_CONCURRENT` | Simultaneous crawls before the server reports busy (default 4) | Deploy |
